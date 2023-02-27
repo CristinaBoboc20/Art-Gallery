@@ -1,0 +1,679 @@
+CREATE TABLE TARA_BOC(
+id_tara number(5),
+denumire varchar2(50), 
+constraint pk_tara primary key(id_tara));
+
+CREATE TABLE CLIENT_BOC(
+id_client number(5,0) not null,
+nume varchar2(50),
+prenume varchar2(50),
+constraint client_pk primary key (id_client)
+);
+
+CREATE TABLE GALERIE_ARTA_BOC(
+id_galerie number(5,0) not null,
+denumire_galerie varchar2(25),
+profit number(7,0),
+data_infiintare date default sysdate,
+constraint galerie_pk primary key(id_galerie)
+);
+
+CREATE TABLE ACHIZITIE_BOC(
+id_achizitie number(5,0) not null,
+id_client number(5,0),
+modalitate_plata varchar2(50),
+data_plata date default sysdate,
+constraint achizitie_pk primary key (id_achizitie),
+constraint achizitie_client_fk foreign key(id_client) references CLIENT_BOC(id_client));
+
+
+CREATE TABLE BILET_BOC(
+id_bilet number(5,0) not null,
+denumire_bilet varchar2(50),
+pret number(4,0),
+data_intrare date default sysdate,
+data_iesire date default sysdate,
+id_achizitie number(5,0) not null,
+id_client number(5,0) not null,
+constraint bilet_pk primary key (id_bilet),
+constraint bilet_achizitie_fk foreign key(id_achizitie) references ACHIZITIE_BOC(id_achizitie),
+constraint bilet_client_fk foreign key(id_client) references CLIENT_BOC(id_client)
+);
+
+CREATE TABLE ARTIST_BOC(
+id_artist number(5,0) not null,
+nume varchar2(50) constraint null_nume not null,
+prenume varchar2(50) constraint null_prenume not null,
+varsta number(3,0) not null,
+stil varchar2(50),
+nr_telefon varchar2(11),
+constraint artist_pk primary key(id_artist));
+
+CREATE TABLE OPERA_BOC(
+id_opera number(5,0) not null,
+id_artist number(5,0) not null,
+id_tara number(5,0),
+denumire_opera varchar2(50),
+greutate number(4,0),
+valoare number(10,0),
+constraint opera_pk primary key(id_opera),
+constraint opera_artist_fk foreign key(id_artist) references ARTIST_BOC(id_artist),
+constraint opera_tara_fk foreign key(id_tara) references TARA_BOC(id_tara)
+);
+
+CREATE TABLE JOB_BOC(
+id_job number(5,0) not null,
+denumire_job varchar2(50) not null,
+min_salary number(7,0) not null,
+max_salary number(10,0) not null,
+constraint job_pk primary key(id_job)
+);
+
+CREATE TABLE ANGAJAT_BOC(
+id_angajat number(5,0) not null,
+nume varchar2(50) constraint null_nume_angajat not null,
+prenume varchar2(50) constraint null_prenume_angajat not null,
+email varchar2(30),
+varsta number(2,0) not null,
+nr_telefon varchar2(11),
+salariu number(8,0) not null,
+experienta_ani number(5,0),
+id_job number(5,0) not null,
+id_galerie number(5,0) not null,
+data_angajarii date default sysdate,
+constraint angajat_pk primary key(id_angajat),
+constraint angajat_galerie_fk foreign key(id_galerie) references GALERIE_ARTA_BOC(id_galerie),
+constraint angajat_job_fk foreign key(id_job) references JOB_BOC(id_job)
+);
+
+CREATE TABLE COLABORARE_BOC(
+id_galerie number(5,0) not null,
+id_artist number(5,0) not null,
+id_opera number(5,0) not null,
+data_livrari date default sysdate,
+constraint colaborare_galerie_fk foreign key(id_galerie) references GALERIE_ARTA_BOC(id_galerie),
+constraint colaborare_artist_fk foreign key(id_artist) references ARTIST_BOC(id_artist),
+constraint colaborare_opera_fk foreign key(id_opera) references OPERA_BOC(id_opera),
+constraint colaborare_pk primary key(id_galerie, id_artist ,id_opera));
+
+CREATE TABLE NATIONALITATE_BOC(
+id_nationalitatee number(5,0) not null,
+denumire_nationalitatee varchar2(50),
+constraint nationalitatee_pk primary key(id_nationalitatee)
+);
+
+CREATE TABLE JOB_HISTORY_BOC(
+id_angajat number(5,0) not null,
+data_start date default sysdate,
+data_sfarsit date default sysdate,
+id_job number(5,0) not null,
+constraint history_job_fk foreign key(id_job) references JOB_BOC(id_job),
+constraint history_angajat_fk foreign key(id_angajat)  references ANGAJAT_BOC(id_angajat)
+);
+
+CREATE TABLE VIZITEAZA_BOC(
+id_galerie number(5,0) not null,
+id_client number(5,0) not null,
+data_vizitei date default sysdate,
+constraint viziteaza_galerie_fk foreign key(id_galerie) references GALERIE_ARTA_BOC(id_galerie),
+constraint viziteaza_client_fk foreign key(id_client)  references CLIENT_BOC(id_client),
+constraint viziteaza_pk primary key(id_galerie, id_client)
+);
+
+INSERARI IN TABELE
+se va genera automat id-ul pentru fiecare entitate
+
+SELECT * FROM VIZITEAZA_BOC;
+CREATE SEQUENCE SEQ_VIZITEAZABOC
+INCREMENT BY 80
+START WITH 120
+MAXVALUE 10000
+NOCYCLE;
+
+
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (120, 110, '05-april-2020');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (170, 190, '25-july-2019');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (220, 270, '15-february-2020');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (270, 350, '06-may-2021');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (320, 430, '15-april-2018');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (370, 510, '29-november-2022');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (420, 590, '20-august-2020');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (470, 670, '30-december-2022');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (520, 750, '20-february-2021');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (570, 830, '16-january-2020');
+
+INSERT INTO VIZITEAZA_BOC(id_galerie,  id_client, data_vizitei)
+values (570, 910, '30-may-2021');
+
+
+
+SELECT * FROM TARA_BOC;
+CREATE SEQUENCE SEQ_TARABOC
+INCREMENT BY 10
+START WITH 5
+MAXVALUE 10000
+NOCYCLE;
+
+INSERARI IN TABELA TARA_BOC
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'ITALIA');
+
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'FRANTA');
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'CANADA');
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'ELVETIA');
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'ROMANIA');
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'DANEMARCA');
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'JAPONIA');
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'CHINA');
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'NORVEGIA');
+
+INSERT INTO TARA_BOC
+VALUES(SEQ_TARABOC.NEXTVAL, 'SUEDIA');
+
+SELECT * FROM ARTIST_BOC;
+CREATE SEQUENCE SEQ_ARTISTBOC
+INCREMENT BY 10
+START WITH 5
+MAXVALUE 10000
+NOCYCLE;
+
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Ionescu','Andrei', 'modern',30 , '0712345610');
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Popescu','Mihai', 'impresionist', '20' ,'0700001285');
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Radulescu','Cosmin', 'abstract', '19' ,'0710109357');
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Ursu','Ion', 'cubist', '45' ,'0795780036');
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Neagu','Ema', 'modern', '18' ,'0712121213');
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Plaiasu','Irina', 'clasic', '32' ,'0700000000');
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Zana','Miruna', 'realist', '25' ,'0711112388');
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Leustean','Lucian', 'modern', '21' ,'0717991210');
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Negru','Ana', 'clasic', '40' ,'0732726243');
+
+
+insert into ARTIST_BOC(id_artist,nume,prenume,stil,varsta,nr_telefon) 
+values ( SEQ_ARTISTBOC.nextval, 'Popa','Vasile', 'impresionist', '50' ,'0740916357');
+
+
+SELECT * FROM GALERIE_ARTA_BOC;
+CREATE SEQUENCE SEQ_GALERIE_ARTA
+INCREMENT BY 50
+START WITH 70
+MAXVALUE 10000
+NOCYCLE;
+
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'Galateca','20-july-2000', 15000);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'ORIZONT','14-january-1950', 320000);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'ROMANA','10-september-1970', 49756);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'MORA','05-june-2001', 138406);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'GOLD','28-december-1998', 295687);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'ROMANA','10-september-1970', 49756);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'ANNART','01-november-1990', 658935);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'IAGA','07-february-2005', 13485);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'QUADRO','15-may-2010', 7896);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'DANEL','03-april-2007', 14830);
+INSERT INTO GALERIE_ARTA_BOC(id_galerie, denumire_galerie, data_infiintare, profit)
+values (SEQ_GALERIE_ARTA.nextval, 'PRINCIPESA','15-may-2010', 50631);
+
+
+SELECT * FROM OPERA_BOC;
+CREATE SEQUENCE SEQ_OPERABOC
+INCREMENT BY 25
+START WITH 40
+MAXVALUE 10000
+NOCYCLE;
+
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Sarutul', 150, 12000, 135, 265);
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Tipatul', 180, 17690, 175, 235);
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Watch Night', 20, 15000, 205, 215 );
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Haystacks', 15, 1800, 205, 245 );
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Water Lilies', 9, 250000, 175, 235);
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Four Dancers', 9, 75896, 145, 245);
+
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Tragedia', 13, 963542, 185, 255);
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Femeie cu chitara', 32, 1859695, 165, 225);
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Frank', 102, 44444, 165, 225);
+
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Paintbrush viu', 27, 659842, 155, 295);
+INSERT INTO OPERA_BOC(id_opera, denumire_opera, greutate, valoare, id_artist, id_tara)
+values (SEQ_OPERABOC.nextval, 'Barack Obama', 8, 57896, 195, 235);
+
+
+
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (120, 65, 135, '01-july-2013');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (270, 115, 205, '20-january-2018');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (320, 190, 195, '11-december-2017');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (320, 290, 155, '18-may-2022');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (420, 165, 175, '29-november-2019');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (570, 215, 185, '30-april-2020');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (370, 90, 175, '08-june-2019');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (470, 215, 185, '15-february-2021');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (170, 240, 165, '10-may-2020');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (220, 265, 145, '02-december-2022');
+INSERT INTO COLABORARE_BOC(id_galerie,  id_opera, id_artist, data_livrari)
+values (520, 315, 195, '21-july-2016');
+
+  
+SELECT * FROM NATIONALITATE_BOC;
+CREATE SEQUENCE SEQ_NATIONALITATEBOC
+INCREMENT BY 30
+START WITH 25
+MAXVALUE 10000
+NOCYCLE;
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'ROMAN');
+
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'FRANCEZ');
+
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'GERMAN');
+
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'ITALIAN');
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'AMERICAN');
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'SPANIOL');
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'PORTUGHEZ');
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'JAPONEZ');
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'CHINEZ');
+
+INSERT INTO NATIONALITATE_BOC(id_nationalitatee, denumire_nationalitatee)
+VALUES(SEQ_NATIONALITATEBOC.NEXTVAL, 'INDIAN');
+
+
+
+
+
+  
+SELECT * FROM CLIENT_BOC;
+CREATE SEQUENCE SEQ_CLIENTBOC
+INCREMENT BY 80
+START WITH 30
+MAXVALUE 10000
+NOCYCLE;
+
+
+
+
+
+
+
+
+
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'DOBRE', 'ALIN');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'BARBU', 'MARIA');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'DINU', 'ELENA');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'STAN', 'ANA');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'IANCU', 'IOANA');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'MUNTEANU', 'GEORGIANA');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'CALINESCU', 'MARIUS');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'CIOBANU', 'ANDREI');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'CONSTANTINESCU', 'IULIAN');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'MOLDOVEANU', 'AURELIA');
+
+INSERT INTO CLIENT_BOC(id_client, nume, prenume)
+VALUES(SEQ_CLIENTBOC.NEXTVAL, 'STOICA', 'MIHAELA');
+
+
+
+
+
+
+
+
+SELECT * FROM ACHIZITIE_BOC;
+CREATE SEQUENCE SEQ_ACHIZITIEBOC
+INCREMENT BY 40
+START WITH 60
+MAXVALUE 10000
+NOCYCLE;
+
+
+                                        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 110, 'card','05-april-2020');
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 190, 'cash', '25-july-2019');
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 270, 'sms','15-february-2021');
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 350, 'card','29-november-2022');
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 430, 'cash','06-may-2021');
+
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 510, 'criptomonede','15-april-2018');
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 590, 'sms','20-august-2020');
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 670, 'cash','30-december-2022');
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 750, 'card','20-february-2021');
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 830, 'sms','16-january-2020');
+
+INSERT INTO ACHIZITIE_BOC(id_achizitie, id_client, modalitate_plata, data_plata)
+VALUES(SEQ_ACHIZITIEBOC.NEXTVAL, 910, 'criptomonede','30-may-2021');
+
+
+  
+SELECT * FROM BILET_BOC;
+CREATE SEQUENCE SEQ_BILETBOC
+INCREMENT BY 70
+START WITH 20
+MAXVALUE 10000
+NOCYCLE;
+  
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire,id_achizitie,id_client)
+VALUES(SEQ_BILETBOC.NEXTVAL, 'ONE DAY HERO', 20 ,'05-april-2020', '06-april-2020',100,110);
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire, id_achizitie,id_client )
+VALUES(SEQ_BILETBOC.NEXTVAL, 'THREE DAYS HERO', 50 ,'25-july-2019', '28-july-2019',140,190);
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire, id_achizitie,id_client )
+VALUES(SEQ_BILETBOC.NEXTVAL, 'WEEK HERO', 100 ,'15-february-2020', '22-february-2020',180,270);
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire, id_achizitie,id_client)
+VALUES(SEQ_BILETBOC.NEXTVAL, 'ONE DAY HERO',20 ,'06-may-2021', '07-may-2021',220,350);
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire, id_achizitie,id_client )
+VALUES(SEQ_BILETBOC.NEXTVAL, 'THREE DAYS HERO', 50 ,'15-april-2018', '18-april-2018',260,430);
+
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire, id_achizitie,id_client)
+VALUES(SEQ_BILETBOC.NEXTVAL, 'ONE DAY HERO', 20 ,'29-november-2022', '30-november-2022',300,510);
+
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire, id_achizitie,id_client )
+VALUES(SEQ_BILETBOC.NEXTVAL, 'ONE DAY HERO', 20 ,'20-august-2020', '21-august-2020',340,590);
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire, id_achizitie,id_client )
+VALUES(SEQ_BILETBOC.NEXTVAL, 'NIGHT HERO', 30 ,'30-december-2022', '31-december-2022',380,670);
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire, id_achizitie,id_client )
+VALUES(SEQ_BILETBOC.NEXTVAL, 'WEEK HERO', 100 ,'20-february-2021', '27-february-2021',420,750);
+
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire,id_achizitie,id_client )
+VALUES(SEQ_BILETBOC.NEXTVAL, 'MONTH HERO', 200 ,'16-january-2020', '16-february-2020',460,830);
+
+INSERT INTO BILET_BOC(id_bilet, denumire_bilet, pret,data_intrare, data_iesire, id_achizitie,id_client )
+VALUES(SEQ_BILETBOC.NEXTVAL, 'THREE DAYS HERO', 50 ,'30-may-2021', '2-june-2021',500,910);
+
+   
+SELECT * FROM JOB_BOC;
+CREATE SEQUENCE SEQ_JOBBOC
+INCREMENT BY 100
+START WITH 100
+MAXVALUE 10000
+NOCYCLE;
+         
+
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'casier', 1500 ,3000);
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'paznic', 1700 ,3500);
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'ghid', 1800 , 5000);
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'ingrijitor', 2000 ,2500);
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'asistent ghid', 1500 ,2000);
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'manager ghid', 2800 ,5000);
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'manager paznic', 2500 ,5000);
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'contabil', 3500 , 6000);
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'secretara', 2500 , 4000);
+INSERT INTO JOB_BOC(id_job, denumire_job, min_salary, max_salary)
+VALUES(SEQ_JOBBOC.NEXTVAL, 'administrator', 4000 , 8000);
+
+
+
+
+
+
+
+SELECT * FROM ANGAJAT_BOC;
+CREATE SEQUENCE SEQ_ANGAJATBOC
+INCREMENT BY 300
+START WITH 200
+MAXVALUE 10000
+NOCYCLE;
+
+
+
+
+
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 400, 120, 'MICLAUS', 'SIMONA', 'miclaussimona@yahoo.com', 52, '0750505060', 2000, 22, '30-july-2000');
+
+DELETE ANGAJAT_BOC WHERE nume='MICLAUS';
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 500, 170, 'MACOVEI', 'GHEORGHE', 'macoveigheorghe@gmail.com', 40, '0712585060', 3000, 17, '15-april-2005');
+
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 600, 220, 'LASCU', 'MIHAELA', 'lascumihaela@gmail.com',  62, '0795641160', 4500, 27 ,  '09-january-1990');
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 700, 270, 'OFRIM', 'DRAGOS', 'ofrimdragos@yahoo.com',  38, '0717506399', 2400, 20, '25-may-2014');
+
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 800, 320, 'VALERIU', 'DAVID', 'valeriudavid@yahoo.com',  50, '0789555361', 1700, 18, '18-june-2004');
+
+
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 900, 370, 'COATU', 'LILIANA', 'coatuliliana@yahoo.com',  30, '0765498977', 4000, 3, '27-february-2019');
+
+
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 1000, 420, 'COSTEA', 'MARIAN', 'costeamarian@gmail.com', 38 , '0712564896', 3500, 16, '12-may-2006');
+
+
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 1300, 470, 'MARINESCU', 'IOAN', 'marinescuioan@yahoo.com',  50, '0721358489', 4500, 5, '27-february-2017');
+
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 1400, 520, 'PACURAR', 'CLAUDIA', 'pacurarclaudia@gmail.com',  35, '0751597819', 3200, 12, '08-august-2010');
+
+
+
+INSERT INTO ANGAJAT_BOC(id_angajat, id_job, id_galerie, nume, prenume, email, varsta, nr_telefon, salariu, experienta_ani, data_angajarii)
+VALUES(SEQ_ANGAJATBOC.NEXTVAL, 1500, 570, 'VOICU', 'VIOLETA', 'voicuvioleta@yahoo.com',  45, '0743549254', 7000, 11, '15-december-2011');
+
+
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(500, '15-april-2005', '20-march-2020', 500);
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(3800, '09-january-1990', '14-february-2015', 600);
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(1100, '25-may-2014', '02-december-2018', 700);
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(1400, '18-june-2004', '19-september-2012', 800);
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(1700, '27-february-2019', '25-july-2021', 900);
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(2000, '12-may-2006', '14-june-2016', 1000);
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(2300, '27-february-2017', '10-may-2022', 1300);
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(2600, '08-august-2010', '23-november-2018', 1400);
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(2900, '15-december-2011', '16-december-2019', 1500);
+
+INSERT INTO JOB_HISTORY_BOC(id_angajat, data_start, data_sfarsit, id_job)
+VALUES(3200, '30-july-2000', '17-october-2015', 400);
+
+

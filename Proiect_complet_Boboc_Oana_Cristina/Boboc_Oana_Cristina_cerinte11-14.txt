@@ -1,0 +1,159 @@
+11.Formulați în limbaj natural și implementați 5 cereri SQL complexe ce vor utiliza, în ansamblul lor, următoarele elemente: 
+• operație join pe cel puțin 4 tabele • filtrare la nivel de linii • subcereri sincronizate în care intervin cel puțin 3 tabele • subcereri nesincronizate în care intervin cel puțin 3 tabele • grupări de date, funcții grup, filtrare la nivel de grupuri • ordonări • utilizarea a cel puțin 2 funcții pe șiruri de caractere, 2 funcții pe date calendaristice, a funcțiilor NVL și DECODE, a cel puțin unei expresii CASE • utilizarea a cel puțin 1 bloc de cerere (clauza WITH) 
+1.
+Sa se afiseze id-ul, numele, prenumele si varsta artistului care are opere livrate de mai putin de 37 luni si lungimea denumiri tari din care provin operele sa fie mai mare decat 4 si contin sirul 'IA',  ordonate dupa varsta artistului,
+--join pe 4 tabele, 2 functi calendaristice( months_between, sysdate), nvl, 4 functii pt siruri de caractere → SUBSTR , UPPER , CONCAT si LENGTH.
+
+select art.id_artist as "Id-ul artistului",concat(art.nume,'  ')||art.prenume as "Nume artist",nvl(art.varsta, 0) "varsta artistului", op.denumire_opera as "Nume opera", colab.data_livrari , ta.denumire
+ from artist_boc art join COLABORARE_BOC colab on(art.id_artist=colab.id_artist)
+                join opera_boc op on(op.id_opera= colab.id_opera)
+                join tara_boc ta on(ta.id_tara=op.id_tara)
+where (UPPER(SUBSTR(ta.denumire, 6, 7)) ='IA') and length(ta.denumire)>=4 and ROUND(MONTHS_BETWEEN(sysdate,colab.data_livrari))<37
+order by art.varsta;
+
+2.
+
+
+--Să se afișeze modalitatea de plata din tabela achizitie,id-ul, data_iesire modificata si denumirea biletului,pretul modificat al biletului care are pretul mai mare sau egal decât pretul mediu al biletelor din plata.
+--Pretul modificat se va calcula in acest mod: dacă pretul este egal cu 20 lei, se va majora cu 50%, dacă este egal cu 50 lei, se va majora cu 40%, iar dacă este egal cu 100, cu 20%. Biletele se vor afisa in ordine lexicografica dupa modalitatea de plata.
+--se va adauga o luna la data_iesire
+----filtrare la nivel de grupuri, ordonare, functie grup, bloc de cere(with), decode, functie calendaristica (add_months).
+
+with achizitie_noua as
+                  (select avg(pret) as pr,id_achizitie
+                  from bilet_boc
+                  group by id_achizitie)
+select b.denumire_bilet,b.id_bilet, ac.modalitate_plata, b.pret, add_months(b.data_iesire,1) as "Data_iesire_modificata",
+decode(pret,'20', pret*1.5,'50',pret*1.4, '100',pret*1.2) as "Pret_modificat"
+from bilet_boc b, achizitie_noua an, achizitie_boc ac  
+where an.pr>=b.pret 
+and b.id_achizitie = an.id_achizitie and ac.id_achizitie=b.id_achizitie
+order by modalitate_plata;
+
+SELECT * FROM BILET_BOC;
+
+
+3.
+--sa se afiseze id_client, nume din tabela client care poate vedea opera cu id = 265 
+--s-au folosit subcereri nesincronizate pe 5 tabele
+
+select id_client,nume
+from client_boc
+                WHERE id_client IN(select id_client
+                                from viziteaza_boc
+                                where id_galerie IN(select id_galerie
+                                                from galerie_arta_boc
+                                                where id_galerie IN(select id_galerie
+                                                                    from colaborare_boc
+                                                                    where id_opera= (select id_opera
+                                                                                        from opera_boc  
+                                                                                        where id_opera=265
+                                                                                        )
+                                                                        )
+                                                    )
+                                );
+4.
+--Să se afișeze numele , prenumele, numarul de telefon,anul angajari, id_ul galeriei de arta unde munceste , 
+anii de experienta ai angajatului, varsta medie a angajatilor din galeria de arta unde munceste,
+ precum și numărul angajaților care au numarul de ani de experienta mai mare egal decat media numarului de ani de experienta.
+--subcere nesincronizata, functia grup AVG, functia calendaristica extract(year from data)
+
+
+SELECT concat(nume,' ')||prenume as "Nume angajat" , nr_telefon as "Numar telefon angajat",experienta_ani, extract(year from data_angajarii) AS "Anul angajari", id_galerie,j.denumire_job,
+        (SELECT   round(AVG(varsta))
+          FROM     angajat_boc
+          WHERE    id_galerie = an.id_galerie and id_job=j.id_job) Varsta_medie,
+       (select denumire_galerie
+       from galerie_arta_boc
+       where id_galerie = an.id_galerie and an.id_job=j.id_job)  Denumire_galerie,
+       (select  count(*)
+       from angajat_boc
+       where id_galerie = an.id_galerie and id_job=j.id_job) Numar_angajati
+FROM  angajat_boc an, job_boc j
+WHERE  experienta_ani >=(SELECT  avg(experienta_ani)
+                  FROM     angajat_boc
+                  WHERE    id_galerie = an.id_galerie and an.id_job=j.id_job);  
+
+
+ 
+
+5.
+--sa se afiseze denumirea , valoarea operei, denumirea galeriei si valoarea modificata a operelor. Valoarea modificata se va obtine astfel: daca denumirea operei este ‘SARUTUL’ atunci valoarea operei va creste cu 50%, daca denumirea este ‘TIPATUL’ atunci valoarea operei va creste cu 80%, iar daca denumirea este ‘TRAGEDIA’ atunci valoarea operei va creste cu 175%.
+--am folosit expresia case si o ordonare
+select o.denumire_opera, o.valoare, g.denumire_galerie,
+case upper(o.denumire_opera)
+        WHEN 'SARUTUL' THEN round(o.valoare*1.5)
+        WHEN 'TIPATUL' THEN round(o.valoare*1.80)
+        WHEN 'TRAGEDIA' THEN round(o.valoare*2.75)
+        ELSE o.valoare
+        end 
+        AS "Valoare modificata"
+from opera_boc o, galerie_arta_boc g, colaborare_boc c
+where o.id_opera=c.id_opera and c.id_galerie=g.id_galerie 
+order by o.denumire_opera;
+
+
+
+
+12.
+ Implementarea a 3 operații de actualizare sau suprimare a datelor utilizând subcereri.
+
+1. Sa se stearga din colaborare, artisti care au varsta mai mica sau egala de 30 ani si nume care contine literele "CU".
+
+delete from colaborare_boc
+where id_artist in(select id_artist 
+	           from artist_boc 
+                           where varsta<=30 and upper(nume) like '%CU%'); 
+
+
+
+2.-- sa se adauge doua zile la data plati daca biletul are ziau de intrare mai mica decat 18.
+UPDATE achizitie_boc
+SET data_plata = data_plata + 2
+WHERE  id_achizitie in (SELECT id_achizitie FROM bilet_boc WHERE  EXTRACT(DAY FROM data_intrare)>18);
+SELECT * FROM achizitie_BOC;
+
+
+
+3. sa se majoreze salariul unui angajat cu 16% daca salariul minim al jobului pe care il are este egal cu 1500 lei
+
+UPDATE ANGAJAT_BOC
+SET salariu = salariu * 1,16
+WHERE  id_job in (SELECT id_job FROM job_boc WHERE min_salary=1500);
+
+
+13.. Crearea unei secvențe ce va fi utilizată în inserarea înregistrărilor în tabele (punctul 10)
+SELECT * FROM ACHIZITIE_BOC;
+CREATE SEQUENCE SEQ_ACHIZITIEBOC
+INCREMENT BY 40
+START WITH 60
+MAXVALUE 10000
+NOCYCLE;
+
+
+14.Crearea unei vizualizări compuse. Dați un exemplu de operație LMD permisă pe 
+vizualizarea respectivă și un exemplu de operație LMD nepermisă.
+CREATE OR REPLACE VIEW Z AS
+    (SELECT Client_Boc.id_client, Client_boc.nume, Client_boc.prenume,  ACHIZITIE_boc.id_achizitie as ID_ACHIZITIE,
+    ACHIZITIE_boc.modalitate_plata AS MODALITATE_PLATA, ACHIZITIE_boc.data_plata as DATA_PLATA
+    FROM CLIENT_BOC join ACHIZITIE_BOC on CLIENT_boc.id_client = ACHIZITIE_boc.id_client);
+
+
+
+-- OPERATIE LMD PERMISA
+
+UPDATE Z
+SET MODALITATE_PLATA='CARD'
+WHERE lower(nume) like '%n%';
+
+
+                                   
+--OPERATIE LMD NEPERMISA
+
+
+UPDATE Z
+set nume='CLIENT GALERIE SMS'
+where MODALITATE_PLATA='SMS';
+
+
+
